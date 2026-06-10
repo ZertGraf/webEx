@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% from 'books/_form.html' import book_form, easymde_assets, easymde_init %}
+
+{% block title %}Добавление книги — Электронная библиотека{% endblock %}
+
+{% block head %}{{ easymde_assets() }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Добавление книги</h1>
+{{ book_form(url_for('books.create'), data, genres, with_cover=true) }}
+{% endblock %}
+
+{% block scripts %}{{ easymde_init('short_description') }}{% endblock %}

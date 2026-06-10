@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+media/covers/*
+!media/covers/.gitkeep
+
+# local-only helpers
+_seed_test_books.py

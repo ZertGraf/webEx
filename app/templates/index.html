@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1 class="mb-4">Книги</h1>
+
+{% if popular %}
+<h2 class="h4 mb-3">Популярные книги</h2>
+<div class="row row-cols-1 row-cols-md-5 g-3 mb-4">
+  {% for book, views in popular %}
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <a href="{{ url_for('books.view', book_id=book.id) }}">{{ book.title }}</a>
+        <div class="text-muted small mt-1">Просмотров за 3 месяца: {{ views }}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if recent %}
+<h2 class="h4 mb-3">Недавно просмотренные книги</h2>
+<ul class="list-group mb-4">
+  {% for book in recent %}
+  <li class="list-group-item">
+    <a href="{{ url_for('books.view', book_id=book.id) }}">{{ book.title }}</a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Название</th>
+        <th>Автор</th>
+        <th>Жанры</th>
+        <th>Год</th>
+        <th>Средняя оценка</th>
+        <th>Рецензий</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for book in pagination.items %}
+      <tr>
+        <td>{{ book.title }}</td>
+        <td>{{ book.author }}</td>
+        <td>{{ book.genres | map(attribute='name') | join(', ') }}</td>
+        <td>{{ book.year }}</td>
+        <td>{{ '%.1f' | format(book.avg_rating) if book.avg_rating is not none else '—' }}</td>
+        <td>{{ book.reviews_count }}</td>
+        <td>
+          <a class="btn btn-sm btn-outline-primary" href="{{ url_for('books.view', book_id=book.id) }}">Просмотр</a>
+          {% if current_user.is_authenticated and (current_user.is_admin or current_user.is_moderator) %}
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('books.edit', book_id=book.id) }}">Редактировать</a>
+          {% endif %}
+          {% if current_user.is_authenticated and current_user.is_admin %}
+            <button type="button" class="btn btn-sm btn-outline-danger delete-book-btn"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal"
+                    data-book-title="{{ book.title }}"
+                    data-delete-url="{{ url_for('books.delete', book_id=book.id) }}">Удалить</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="text-center">Книг пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<nav aria-label="Навигация по страницам">
+  <ul class="pagination">
+    {% for p in pagination.iter_pages() %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == pagination.page }}">
+          <a class="page-link" href="{{ url_for('books.index', page=p) }}">{{ p }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% if current_user.is_authenticated and current_user.is_admin %}
+  <a class="btn btn-primary" href="{{ url_for('books.create') }}">Добавить книгу</a>
+{% endif %}
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Удаление книги</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        Вы уверены, что хотите удалить книгу <strong id="deleteBookTitle"></strong>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+        <form id="deleteForm" method="post" action="">
+          <button type="submit" class="btn btn-danger">Да</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.delete-book-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.getElementById('deleteBookTitle').textContent = btn.dataset.bookTitle;
+      document.getElementById('deleteForm').action = btn.dataset.deleteUrl;
+    });
+  });
+</script>
+{% endblock %}

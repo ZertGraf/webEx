@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }} — Электронная библиотека{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-4 mb-4">
+    {% if book.cover %}
+      <img src="{{ url_for('books.cover_file', filename=book.cover.filename) }}"
+           class="img-fluid rounded shadow-sm" alt="Обложка книги «{{ book.title }}»">
+    {% else %}
+      <div class="text-muted">Обложка отсутствует</div>
+    {% endif %}
+  </div>
+  <div class="col-md-8">
+    <h1>{{ book.title }}</h1>
+    <table class="table">
+      <tr><th>Автор</th><td>{{ book.author }}</td></tr>
+      <tr><th>Издательство</th><td>{{ book.publisher }}</td></tr>
+      <tr><th>Год</th><td>{{ book.year }}</td></tr>
+      <tr><th>Объём</th><td>{{ book.pages }} стр.</td></tr>
+      <tr><th>Жанры</th><td>{{ book.genres | map(attribute='name') | join(', ') }}</td></tr>
+      <tr><th>Средняя оценка</th>
+          <td>{{ '%.1f' | format(avg_rating) if avg_rating is not none else '—' }}</td></tr>
+    </table>
+    <h5>Описание</h5>
+    <div>{{ book.short_description | markdown }}</div>
+  </div>
+</div>
+
+<hr>
+<h2 class="mb-3">Рецензии</h2>
+
+{% if current_user.is_authenticated %}
+  {% if user_review %}
+    <div class="card mb-4 border-primary">
+      <div class="card-header">Ваша рецензия — оценка: {{ user_review.rating }}</div>
+      <div class="card-body">{{ user_review.text | markdown }}</div>
+    </div>
+  {% else %}
+    <a class="btn btn-primary mb-4" href="{{ url_for('books.create_review', book_id=book.id) }}">Написать рецензию</a>
+  {% endif %}
+{% endif %}
+
+{% for review in reviews %}
+  <div class="card mb-3">
+    <div class="card-header d-flex justify-content-between">
+      <span>{{ review.user.full_name }} — оценка: {{ review.rating }}</span>
+      <span class="text-muted">{{ review.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+    </div>
+    <div class="card-body">{{ review.text | markdown }}</div>
+  </div>
+{% else %}
+  <p class="text-muted">Рецензий пока нет.</p>
+{% endfor %}
+{% endblock %}

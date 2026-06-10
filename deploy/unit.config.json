@@ -1,0 +1,21 @@
+{
+  "listeners": {
+    "*:80": {
+      "pass": "applications/library"
+    }
+  },
+  "applications": {
+    "library": {
+      "type": "python 3",
+      "path": "/var/www/library",
+      "working_directory": "/var/www/library",
+      "home": "/var/www/library/.venv",
+      "module": "wsgi",
+      "callable": "app",
+      "environment": {
+        "SECRET_KEY": "change-me",
+        "DATABASE_URL": "mysql+mysqlconnector://library:library@localhost:3306/library"
+      }
+    }
+  }
+}

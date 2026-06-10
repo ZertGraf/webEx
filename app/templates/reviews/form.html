@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% from 'books/_form.html' import easymde_assets, easymde_init %}
+
+{% block title %}Рецензия на «{{ book.title }}» — Электронная библиотека{% endblock %}
+
+{% block head %}{{ easymde_assets() }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Рецензия на книгу «{{ book.title }}»</h1>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label" for="rating">Оценка</label>
+    <select class="form-select" id="rating" name="rating">
+      {% for value, label in ratings %}
+        <option value="{{ value }}" {{ 'selected' if value == data.rating }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="text">Текст рецензии</label>
+    <textarea class="form-control" id="text" name="text" rows="8">{{ data.text or '' }}</textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+  <a class="btn btn-secondary" href="{{ url_for('books.view', book_id=book.id) }}">Отмена</a>
+</form>
+{% endblock %}
+
+{% block scripts %}{{ easymde_init('text') }}{% endblock %}

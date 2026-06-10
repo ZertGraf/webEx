@@ -1,0 +1,62 @@
+{% macro book_form(action_url, data, genres, with_cover=false) %}
+<form method="post" action="{{ action_url }}" enctype="multipart/form-data">
+  <div class="mb-3">
+    <label class="form-label" for="title">Название</label>
+    <input type="text" class="form-control" id="title" name="title"
+           value="{{ data.title or '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="author">Автор</label>
+    <input type="text" class="form-control" id="author" name="author"
+           value="{{ data.author or '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="publisher">Издательство</label>
+    <input type="text" class="form-control" id="publisher" name="publisher"
+           value="{{ data.publisher or '' }}" required>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="year">Год</label>
+      <input type="number" class="form-control" id="year" name="year" min="1901" max="2155"
+             value="{{ data.year or '' }}" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label" for="pages">Объём (в страницах)</label>
+      <input type="number" class="form-control" id="pages" name="pages" min="1"
+             value="{{ data.pages or '' }}" required>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="genres">Жанры</label>
+    <select class="form-select" id="genres" name="genres" multiple required size="6">
+      {% for genre in genres %}
+        <option value="{{ genre.id }}" {{ 'selected' if genre.id in data.genre_ids }}>{{ genre.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label" for="short_description">Краткое описание</label>
+    <textarea class="form-control" id="short_description" name="short_description" rows="8">{{ data.short_description or '' }}</textarea>
+  </div>
+  {% if with_cover %}
+  <div class="mb-3">
+    <label class="form-label" for="cover">Обложка</label>
+    <input type="file" class="form-control" id="cover" name="cover" accept="image/*" required>
+  </div>
+  {% endif %}
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+  <a class="btn btn-secondary" href="{{ url_for('books.index') }}">Отмена</a>
+</form>
+{% endmacro %}
+
+{% macro easymde_assets() %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+{% endmacro %}
+
+{% macro easymde_init(element_id) %}
+<script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+<script>
+  new EasyMDE({ element: document.getElementById('{{ element_id }}'), spellChecker: false });
+</script>
+{% endmacro %}
