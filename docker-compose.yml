@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    image: webex-app
+    container_name: webex-app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - webex_media:/data/covers
+    networks:
+      - caddy_default
+      - shared_mysql
+
+networks:
+  caddy_default:
+    external: true
+  shared_mysql:
+    external: true
+
+volumes:
+  webex_media:
