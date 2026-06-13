@@ -16,5 +16,6 @@ until flask init-db; do
 done
 
 flask seed || true
+flask seed-books || true
 
 exec gunicorn --bind 0.0.0.0:8000 --workers 1 --threads 4 --timeout 60 wsgi:app

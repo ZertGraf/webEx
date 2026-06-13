@@ -55,4 +55,10 @@ def create_app(config_object='config.Config'):
         from app.seed import seed_data
         seed_data()
 
+    @app.cli.command('seed-books')
+    def seed_books_cmd():
+        """Insert demo books with covers and a few reviews."""
+        from app.seed_books import seed_books
+        seed_books()
+
     return app
